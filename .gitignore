@@ -5,5 +5,7 @@
 /Dataset/yolo_304_close_2
 /Dataset/yolo_304_normal
 /Dataset/yolo_304_normal_2
+/Dataset/yolo_326_close
+/Dataset/yolo_326_normal
 /model/
 /train_img_origin/wandb/

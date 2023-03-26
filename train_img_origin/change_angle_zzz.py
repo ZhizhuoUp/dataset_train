@@ -1,6 +1,6 @@
 import numpy as np
 
-data = np.loadtxt('../Dataset/label/label_304_close_2.csv')
+data = np.loadtxt('../Dataset/label/label_326_normal.csv')
 
 # print(-86 // -90)
 
@@ -39,4 +39,4 @@ data = np.delete(data, [0, 1, 2, 3, 6], axis=1)
 #         print(data[i])
 #         print('ssssssssssssssssss')
 
-np.savetxt('../Dataset/label/label_304_close_2.csv', data)
+np.savetxt('../Dataset/label/label_326_normal.csv', data)
