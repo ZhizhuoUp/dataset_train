@@ -28,9 +28,9 @@ if wandb_flag == True:
     run = wandb.init(project='zzz_object_detection',
                      notes='knolling_bot',
                      tags=['baseline', 'paper1'],
-                     name='306_combine')
+                     name='326_combine')
     wandb.config = {
-        'data_num': 1000,
+        'data_num': 300000,
         'data_4_train': 0.8,
         'ratio': 0.5,
         'batch_size': 32
@@ -139,7 +139,7 @@ if __name__ == "__main__":
     curve_path = '../curve/'
     log_path = '../log/'
 
-    data_num = 480000
+    data_num = 300000
     data_4_train = int(data_num * 0.8)
     ratio = 0.5 # close3, normal7
     close_num_train = data_4_train * ratio
@@ -147,15 +147,15 @@ if __name__ == "__main__":
     close_num_test = (data_num - data_4_train) * ratio
     normal_num_test = (data_num - data_4_train) - close_num_test
 
-    close_path = "../Dataset/yolo_304_close_2/"
-    normal_path = "../Dataset/yolo_304_normal_2/"
+    close_path = "../Dataset/yolo_326_close/"
+    normal_path = "../Dataset/yolo_326_normal/"
     close_index = 0
     normal_index = 0
     train_data = []
     test_data = []
 
-    close_label = np.loadtxt('../Dataset/label/label_304_close_2.csv')
-    normal_label = np.loadtxt('../Dataset/label/label_304_normal_2.csv')
+    close_label = np.loadtxt('../Dataset/label/label_326_close.csv')
+    normal_label = np.loadtxt('../Dataset/label/label_326_normal.csv')
     train_label = []
     test_label = []
     xyzyaw3 = np.copy(close_label)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
             print('Testing_Loss At Epoch ' + str(epoch) + ':\t' + str(avg_valid_L))
             min_loss = avg_valid_L
 
-            PATH = model_path + 'best_model_306_combine.pt'
+            PATH = model_path + 'best_model_326_combine.pt'
 
             # torch.save({
             #             'model_state_dict': model.state_dict(),
@@ -316,8 +316,8 @@ if __name__ == "__main__":
         if wandb_flag == True:
             wandb.log({'train loss': all_train_L, 'test loss': all_valid_L})
 
-        np.savetxt(log_path + "training_L_yolo_306_combine.csv", np.asarray(all_train_L))
-        np.savetxt(log_path + "testing_L_yolo_306_combine.csv", np.asarray(all_valid_L))
+        np.savetxt(log_path + "training_L_yolo_326_combine.csv", np.asarray(all_train_L))
+        np.savetxt(log_path + "testing_L_yolo_326_combine.csv", np.asarray(all_valid_L))
         # np.savetxt(log_path + "testing_L_yolo_115_ori.csv", np.asarray(all_valid_L))
 
         if abort_learning > 30:
@@ -332,7 +332,7 @@ if __name__ == "__main__":
     plt.plot(np.arange(len(all_valid_L)), all_valid_L, label='validation')
     plt.title("Learning Curve")
     plt.legend()
-    plt.savefig(curve_path + "lc_306_combine.png")
+    plt.savefig(curve_path + "lc_326_combine.png")
     # plt.show()
 
     # wandb.log_artifact(model)
