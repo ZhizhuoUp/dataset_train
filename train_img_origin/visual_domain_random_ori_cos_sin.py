@@ -28,7 +28,7 @@ if wandb_flag == True:
     run = wandb.init(project='zzz_object_detection',
                      notes='knolling_bot',
                      tags=['baseline', 'paper1'],
-                     name='326_combine')
+                     name='328_combine')
     wandb.config = {
         'data_num': 300000,
         'data_4_train': 0.8,
@@ -154,8 +154,8 @@ if __name__ == "__main__":
     train_data = []
     test_data = []
 
-    close_label = np.loadtxt('../Dataset/label/label_326_close.csv')
-    normal_label = np.loadtxt('../Dataset/label/label_326_normal.csv')
+    close_label = np.loadtxt('../Dataset/label/label_327_close.csv')
+    normal_label = np.loadtxt('../Dataset/label/label_327_normal.csv')
     train_label = []
     test_label = []
     xyzyaw3 = np.copy(close_label)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
             print('Testing_Loss At Epoch ' + str(epoch) + ':\t' + str(avg_valid_L))
             min_loss = avg_valid_L
 
-            PATH = model_path + 'best_model_326_combine.pt'
+            PATH = model_path + 'best_model_328_combine.pt'
 
             # torch.save({
             #             'model_state_dict': model.state_dict(),
@@ -316,8 +316,8 @@ if __name__ == "__main__":
         if wandb_flag == True:
             wandb.log({'train loss': all_train_L, 'test loss': all_valid_L})
 
-        np.savetxt(log_path + "training_L_yolo_326_combine.csv", np.asarray(all_train_L))
-        np.savetxt(log_path + "testing_L_yolo_326_combine.csv", np.asarray(all_valid_L))
+        np.savetxt(log_path + "training_L_yolo_328_combine.csv", np.asarray(all_train_L))
+        np.savetxt(log_path + "testing_L_yolo_328_combine.csv", np.asarray(all_valid_L))
         # np.savetxt(log_path + "testing_L_yolo_115_ori.csv", np.asarray(all_valid_L))
 
         if abort_learning > 30:
@@ -332,7 +332,7 @@ if __name__ == "__main__":
     plt.plot(np.arange(len(all_valid_L)), all_valid_L, label='validation')
     plt.title("Learning Curve")
     plt.legend()
-    plt.savefig(curve_path + "lc_326_combine.png")
+    plt.savefig(curve_path + "lc_328_combine.png")
     # plt.show()
 
     # wandb.log_artifact(model)

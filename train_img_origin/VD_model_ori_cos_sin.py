@@ -114,8 +114,7 @@ class ResNet(nn.Module):
 
         # 306_combine structure
         self.fc0 = nn.Linear(512 * 4, 512 * 6)
-        self.fc_add = nn.Linear(512 * 6, 256 * 8)
-        self.fc1 = nn.Linear(256 * 8, 256 * 6)
+        self.fc1 = nn.Linear(512 * 6, 256 * 6)
         self.fc2 = nn.Linear(256 * 6, 256 * 4)
         self.fc3 = nn.Linear(256 * 4, 512)
         self.fc4 = nn.Linear(512, 256)
@@ -200,8 +199,6 @@ class ResNet(nn.Module):
         x = self.avgpool(x)
         x = x.reshape(x.shape[0], -1)
         x = self.relu(self.fc0(x))
-        x = self.dropout(x)
-        x = self.relu(self.fc_add(x))
         x = self.dropout(x)
         x = self.relu(self.fc1(x))
         x = self.dropout(x)
