@@ -94,45 +94,6 @@ if __name__ == "__main__":
     # torch.cuda.set_device(1)
 
     # eval_model()
-# '''
-#     label = np.loadtxt('../Dataset/label/label_221_combine.csv')[:, :5]
-#     target_x1y1x2y2l = np.copy(label[:, :5])
-#
-#     # xyzyaw3 = np.copy(xyzyaw)
-#     xyzyaw3 = np.copy(target_x1y1x2y2l)
-#     # print(new_label[:, 3])
-#     # print(label[:, 3])
-#
-#     # print(xyzyaw)
-#     img_pth = "../Dataset/yolo_221_combine/"
-#     model_path = '../model/'
-#     curve_path = '../curve/'
-#     log_path = '../log/'
-#
-#
-#     data_num = 30000
-#     data_4_train = int(data_num*0.8)
-#
-#     training_data = []
-#     for i in range(data_4_train):
-#         # print(i)
-#         img = plt.imread(img_pth + "img%d.png" % i)
-#         training_data.append(img)
-#
-#     test_data = []
-#     for i in range(data_4_train,data_num):
-#         # print(i)
-#         img = plt.imread(img_pth + "img%d.png" % i)
-#         # print(np.shape(img))
-#         test_data.append(img)
-#
-#     train_dataset = VD_Data(
-#         img_data=training_data, label_data=target_x1y1x2y2l[:data_4_train], transform=ToTensor())
-#
-#     test_dataset = VD_Data(
-#         img_data=test_data, label_data=target_x1y1x2y2l[data_4_train:data_num], transform=ToTensor())
-#     # print(len(xyzyaw[data_4_train:data_num]))
-#     # print(data_4_train)
 
     ################# choose the ratio of close and normal img #################
     model_path = '../model/'
@@ -232,24 +193,7 @@ if __name__ == "__main__":
         for batch in train_loader:
             img, lwcossin = batch["image"], batch["lwcossin"]
 
-            # ############################## test the shape of img ##############################
-            # img_show = img.cpu().detach().numpy()
-            # print(img_show[0].shape)
-            # temp = img_show[0]
-            # temp_shape = temp.shape
-            # temp = temp.reshape(temp_shape[1], temp_shape[2], temp_shape[0])
-            # print(temp.shape)
-            # cv2.namedWindow("affasdf", 0)
-            # cv2.imshow('affasdf', temp)
-            # cv2.waitKey(0)
-            # cv2.destroyAllWindows()
-            # ############################## test the shape of img ##############################
-
             img = img.to(device)
-            # x1y1x2y2 = x1y1x2y2[:, 2:]
-            # print('this is data', x1y1x2y2lw)
-            # print(scaler.data_max_)
-            #             # print(scaler.data_min_)
             lwcossin = scaler.transform(lwcossin)
             lwcossin = torch.from_numpy(lwcossin)
             lwcossin = lwcossin.to(device)
@@ -283,14 +227,6 @@ if __name__ == "__main__":
                 pred_lwcossin = model.forward(img)
 
                 loss = model.loss(pred_lwcossin, lwcossin, scaler)
-
-                # if loss.item() < 0.1:
-                #     pred_x1y1x2y2l = pred_x1y1x2y2l.cpu().detach().numpy()
-                #     # print('this is', pred_x1y1x2y2l)
-                #     pred_x1y1x2y2l = scaler.inverse_transform(pred_x1y1x2y2l)
-                #     print('this is pred without scaler\n', pred_x1y1x2y2l)
-                #     print('this is target without scaler\n', x1y1x2y2l)
-                #     print('this is loss', loss.item())
 
                 valid_L.append(loss.item())
 

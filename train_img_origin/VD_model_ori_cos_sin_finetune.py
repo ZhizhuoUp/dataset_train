@@ -89,29 +89,6 @@ class ResNet(nn.Module):
 
         self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
 
-        # # 225_combine structure
-        # self.fc0 = nn.Linear(512 * 4, 256 * 4)
-        # self.fc1 = nn.Linear(256 * 4, 512)
-        # self.fc2 = nn.Linear(512, 256)
-        # self.fc3 = nn.Linear(256, 128)
-        # self.fc4 = nn.Linear(128, 64)
-        # self.fc5 = nn.Linear(64, 32)
-        # self.fc6 = nn.Linear(32, output_size)
-
-        # # 226_combine_2 structure
-        # self.fc0 = nn.Linear(512 * 4, 512 * 6)
-        # self.fc1 = nn.Linear(512 * 6, 256 * 6)
-        # self.fc2 = nn.Linear(256 * 6, 256 * 4)
-        # self.fc3 = nn.Linear(256 * 4, 512)
-        # self.fc4 = nn.Linear(512, 256)
-        # self.fc5 = nn.Linear(256, 128)
-        # self.fc6_1 = nn.Linear(128, 80)
-        # self.fc6_2 = nn.Linear(128, 64)
-        # self.fc7_1 = nn.Linear(80, 32)
-        # self.fc7_2 = nn.Linear(64, 16)
-        # self.fc8_1 = nn.Linear(32, output_size - 2)
-        # self.fc8_2 = nn.Linear(16, 2)
-
         # 306_combine structure
         self.fc0 = nn.Linear(512 * 4, 512 * 6)
         self.fc1 = nn.Linear(512 * 6, 256 * 6)
@@ -126,17 +103,6 @@ class ResNet(nn.Module):
         self.fc8_1 = nn.Linear(32, output_size - 2)
         self.fc8_2 = nn.Linear(16, 2)
 
-        # # 226_combine structure
-        # self.fc0 = nn.Linear(512 * 4, 512 * 6)
-        # self.fc1 = nn.Linear(512 * 6, 256 * 6)
-        # self.fc2 = nn.Linear(256 * 6, 256 * 4)
-        # self.fc3 = nn.Linear(256 * 4, 256 * 2)
-        # self.fc4 = nn.Linear(256 * 2, 256)
-        # self.fc5 = nn.Linear(256, 128)
-        # self.fc6 = nn.Linear(128, 64)
-        # self.fc7 = nn.Linear(64, 16)
-        # self.fc8 = nn.Linear(16, output_size)
-
     def forward(self, IMG):
 
         x = self.conv1(IMG)
@@ -147,53 +113,6 @@ class ResNet(nn.Module):
         x = self.layer2(x)
         x = self.layer3(x)
         x = self.layer4(x)
-
-        # # 226_combine structure
-        # x = self.avgpool(x)
-        # x = x.reshape(x.shape[0], -1)
-        # x = self.relu(self.fc0(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc1(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc2(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc3(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc4(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc5(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc6(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc7(x))
-        # x = self.dropout(x)
-        # x = self.fc8(x)
-
-        # # 226_combine_2 structure
-        # x = self.avgpool(x)
-        # x = x.reshape(x.shape[0], -1)
-        # x = self.relu(self.fc0(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc1(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc2(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc3(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc4(x))
-        # x = self.dropout(x)
-        # x = self.relu(self.fc5(x))
-        # x = self.dropout(x)
-        # x1 = self.relu(self.fc6_1(x))
-        # x1 = self.dropout(x1)
-        # x1 = self.relu(self.fc7_1(x1))
-        # x1 = self.dropout(x1)
-        # x1 = self.fc8_1(x1)
-        # x2 = self.relu(self.fc6_2(x))
-        # x2 = self.dropout(x2)
-        # x2 = self.relu(self.fc7_2(x2))
-        # x2 = self.dropout(x2)
-        # x2 = self.fc8_2(x2)
 
         # 306_combine structure
         x = self.avgpool(x)
@@ -221,11 +140,6 @@ class ResNet(nn.Module):
         x2 = self.dropout(x2)
         x2 = self.fc8_2(x2)
 
-        # x = self.fc7(x)
-        # print(x1)
-        # print(x2)
-        # print(torch.cat((x1, x2), dim=-1))
-
         return torch.cat((x1, x2), dim=-1)
         # return x
 
@@ -236,36 +150,6 @@ class ResNet(nn.Module):
         pred_IoU = scaler.inverse_transform(pred)
         target_IoU = scaler.inverse_transform(target)
         device = 'cuda:1'
-
-        # use cv2 to calculate iou
-        # total_area = []
-        # for i in range(len(pred)):
-        #     rect1 = ((0, 0), (pred_IoU[i, 1], pred_IoU[i, 2]), pred_IoU[i, 0])
-        #     # print('pred', rect1)
-        #     rect2 = ((0, 0), (target_IoU[i, 1], target_IoU[i, 2]), target_IoU[i, 0])
-        #     # print('target', rect2)
-        #     int_pts = cv2.rotatedRectangleIntersection(rect1, rect2)[1]
-        #     if int_pts is not None:
-        #         order_pts = cv2.convexHull(int_pts, returnPoints=True)
-        #         int_area = cv2.contourArea(order_pts) / (np.maximum(pred_IoU[i, 1], target_IoU[i, 1]) * np.maximum(pred_IoU[i, 2], target_IoU[i, 2]))
-        #         # if int_area > 0.5:
-        #         #     print('pred', rect1)
-        #         #     print('target', rect2)
-        #         #     print(int_area ** 2)
-        #         # print(int_area)
-        #         if int_area <= 0.3:
-        #             # print(int_pts)
-        #             # print('wtf?!', int_area)
-        #             int_area = 0.00001
-        #         else:
-        #             int_area = int_area ** 2
-        #     else:
-        #         int_area = 0.0000001
-        #     total_area.append(int_area)
-        #
-        # total_area = -np.log(np.asarray(total_area, dtype=np.float32))
-        # total_area = torch.from_numpy(total_area).to(device).reshape((-1, 1))
-        # total_area.requires_grad_()
 
         # use shapely library to calculate iou
         total_iou = []
@@ -347,42 +231,7 @@ class ResNet(nn.Module):
 
         device = 'cuda:1'
 
-        # #################################### change the ori of squares ####################################
-        # scaler = torch.tensor([[0.032, 0.01601, 1.0, 1.0],
-        #                        [0.016, 0.01599, -1.0, -1.0]])
-        # scaler = scaler.to(device)
-        #
-        # target_2 = torch.clone(target)
-        # target_2 = target_2 * (scaler[0] - scaler[1]) + scaler[1]
-        #
-        # # print(len(target_2))
-        # for i in range(len(target_2)):
-        #     if target_2[i, 0] < 0.017:
-        #
-        #         ori = torch.arccos(target_2[i, 2]) / 2
-        #         # print('this is square ori', ori)
-        #         # print('this is changed ori', (torch.pi / 2 - ori))
-        #         target_2[i, 2:] = torch.tensor([torch.cos((torch.pi / 2 - ori) * 2), torch.sin((torch.pi / 2 - ori) * 2)])
-        #
-        # target_2 = (target_2 - scaler[1]) / (scaler[0] - scaler[1])
-        #
-        # for i in range(len(target)):
-        #     # print('loss origin target', torch.mean((pred[i] - target[i]) ** 2))
-        #     # print('loss improved target', torch.mean((pred[i] - target_2[i]) ** 2))
-        #     if torch.mean((pred[i] - target[i]) ** 2) > torch.mean((pred[i] - target_2[i]) ** 2):
-        #         # value.append(torch.mean((pred[i] - target_2[i]) ** 2))
-        #         target[i] = torch.clone(target_2[i])
-        #         # print('loss changed!')
-        #     else:
-        #         pass
-        #
-        # #################################### change the ori of squares ####################################
-
         value = (pred - target) ** 2
-
-        # print('this is pred\n', pred)
-        # print('this is target\n', target)
-        # print('this is value', value)
 
         # print(result)
 
