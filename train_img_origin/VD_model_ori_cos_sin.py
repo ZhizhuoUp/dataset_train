@@ -251,7 +251,7 @@ class ResNet(nn.Module):
         return error.reshape((-1, 1)) * 1000
 
 
-    def loss(self, pred, target, scaler):
+    def loss(self, pred, target):
 
         # print(scaler.data_max_)
         # print(scaler.data_min_)
