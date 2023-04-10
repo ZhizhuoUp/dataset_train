@@ -68,7 +68,7 @@ class ResNet(nn.Module):
             image_channels, 64, kernel_size=7, stride=2, padding=3, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
-        self.dropout = nn.Dropout(p=0.05)
+        self.dropout = nn.Dropout(p=0.1)
         self.sigmoid = nn.Sigmoid()
 
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -255,8 +255,8 @@ class ResNet(nn.Module):
 
         # print(scaler.data_max_)
         # print(scaler.data_min_)
-
-        device = 'cuda:1'
+        # print('this is pred', pred)
+        # print('this is target', target)
 
         value = (pred - target) ** 2
 

@@ -1,22 +1,9 @@
-import torch
-
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-
-# from train_img.VD_model import *
 from VD_model_ori_cos_sin import *
 from torch.utils.data import Dataset, DataLoader
 import numpy as np
 import time
-import pandas as pd
 import matplotlib.pyplot as plt
 import os
-from tqdm import tqdm
-import random
-import cv2
-import torchvision.transforms.functional as TF
-# from pre_view import *
 from sklearn.preprocessing import MinMaxScaler
 
 import wandb
@@ -42,43 +29,29 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 class VD_Data(Dataset):
-    def __init__(self, img_data, label_data, transform=None):
+    def __init__(self, img_data, label_data):
         self.img_data = img_data
         self.label_data = label_data
-        self.transform = transform
 
     def __getitem__(self, idx):
         img_sample = self.img_data[idx]
         label_sample = self.label_data[idx]
 
-        sample = {'image': img_sample, 'lwcossin': label_sample}
+        img_sample = img_sample[:,:,:3]
+        img_sample = img_sample.transpose((2, 0, 1))
 
-        if self.transform:
-            sample = self.transform(sample)
+        # label_sample = scaler.transform(label_sample)
+
+        img_sample = torch.from_numpy(img_sample)
+        label_sample = torch.from_numpy(label_sample)
+
+        sample = {'image': img_sample, 'lwcossin': label_sample}
 
         return sample
 
     def __len__(self):
         return len(self.img_data)
 
-class ToTensor(object):
-    """Convert ndarrays in sample to Tensors."""
-
-    def __call__(self, sample):
-        img_sample, label_sample = sample['image'], sample['lwcossin']
-        # print(type(img_sample))
-        # swap color axis because
-        # numpy image: H x W x C
-        # torch image: C X H X W
-
-        img_sample = img_sample[:,:,:3]
-        image = img_sample.transpose((2, 0, 1))
-
-        img_sample = torch.from_numpy(image)
-        label_sample = torch.from_numpy(label_sample)
-
-        return {'image': img_sample,
-                'lwcossin': label_sample}
 
 if __name__ == "__main__":
 
@@ -96,7 +69,7 @@ if __name__ == "__main__":
     curve_path = '../curve/'
     log_path = '../log/'
 
-    data_num = 3000
+    data_num = 300000
     data_4_train = int(data_num * 0.8)
     ratio = 0.5 # close3, normal7
     close_num_train = int(data_4_train * ratio)
@@ -115,12 +88,18 @@ if __name__ == "__main__":
 
     close_label = np.loadtxt('../Dataset/label/label_407_close.csv')
     normal_label = np.loadtxt('../Dataset/label/label_407_normal.csv')
-
-    xyzyaw3 = np.copy(close_label)
+    # train_label = []
+    # test_label = []
 
     train_label = np.concatenate((close_label[:close_num_train],normal_label[:normal_num_train]))
     test_label  = np.concatenate((close_label[close_num_train:(close_num_train + close_num_test)],
                                   normal_label[normal_num_train:(normal_num_train + close_num_test)]))
+
+    # norm_parameters = np.concatenate((np.min(train_label,axis=0),np.max(train_label,axis=0)))
+    # train_label -= norm_parameters[:4]
+    # train_label /= norm_parameters[4:]
+    # test_label -= norm_parameters[:4]
+    # test_label /= norm_parameters[4:]
 
     for i in range(close_num_train):
         img = plt.imread(close_path + "img%d.png" % i)
@@ -138,21 +117,44 @@ if __name__ == "__main__":
         img = plt.imread(normal_path + "img%d.png" % i)
         test_data.append(img)
 
-    train_label = np.asarray(train_label)
-    test_label = np.asarray(test_label)
+    # for i in range(int(close_num_train)):
+    #     img = plt.imread(close_path + "img%d.png" % close_index)
+    #     train_label.append(close_label[close_index])
+    #     train_data.append(img)
+    #     close_index += 1
+    # for i in range(int(normal_num_train)):
+    #     img = plt.imread(normal_path + "img%d.png" % normal_index)
+    #     train_label.append(normal_label[normal_index])
+    #     train_data.append(img)
+    #     normal_index += 1
+    # for i in range(int(close_num_test)):
+    #     img = plt.imread(close_path + "img%d.png" % close_index)
+    #     test_label.append(close_label[close_index])
+    #     test_data.append(img)
+    #     close_index += 1
+    # for i in range(int(normal_num_test)):
+    #     img = plt.imread(normal_path + "img%d.png" % normal_index)
+    #     test_label.append(normal_label[normal_index])
+    #     test_data.append(img)
+    #     normal_index += 1
+    #
+    # train_label = np.asarray(train_label)
+    # test_label = np.asarray(test_label)
+    # train_data = np.asarray(train_data)
+    # test_data = np.asarray(test_data)
 
+
+    # img = torch.from_numpy(img).to(device, dtype=torch.float32)
 
     train_dataset = VD_Data(
-        img_data=train_data, label_data=train_label, transform=ToTensor())
+        img_data=train_data, label_data=train_label)
 
     test_dataset = VD_Data(
-        img_data=test_data, label_data=test_label, transform=ToTensor())
-    # test_dataset = VD_Data(
-    #     img_data=test_data, label_data=test_label, transform=ToTensor())
+        img_data=test_data, label_data=test_label)
     ################# choose the ratio of close and normal img #################
 
     num_epochs = 100
-    BATCH_SIZE = 8
+    BATCH_SIZE = 32
     learning_rate = 1e-4
 
     train_loader = DataLoader(dataset=train_dataset, batch_size=BATCH_SIZE,
@@ -161,9 +163,7 @@ if __name__ == "__main__":
     test_loader = DataLoader(dataset=test_dataset, batch_size=BATCH_SIZE,
                              shuffle=True, num_workers=4)
 
-    # model.eval()
-
-    model = ResNet50(img_channel=3, output_size=4).to(device)
+    model = ResNet50(img_channel=3, output_size=4).to(device, dtype=torch.float32)
     # model.load_state_dict(torch.load('../model/best_model_407_combine.pt'))
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
@@ -174,30 +174,31 @@ if __name__ == "__main__":
     tar_array = []
 
     # mm_sc = [[1.571, 0.033], [-1.571, 0.015]]
-    scaler = MinMaxScaler()
-    scaler.fit(xyzyaw3)
-    # scaler.fit(mm_sc)
-    print(scaler.data_max_)
-    print(scaler.data_min_)
+    # scaler = MinMaxScaler()
+    # scaler.fit(xyzyaw3)
+    # # scaler.fit(mm_sc)
+    # print(scaler.data_max_)
+    # print(scaler.data_min_)
+    print('begin!')
 
     abort_learning = 0
     for epoch in range(num_epochs):
         t0 = time.time()
         train_L, valid_L = [], []
 
-
         # Training Procedure
         model.train()
-
         for batch in train_loader:
+
             img, lwcossin = batch["image"], batch["lwcossin"]
-            img = img.to(device)
-            lwcossin = scaler.transform(lwcossin)
-            lwcossin = torch.from_numpy(lwcossin)
-            lwcossin = lwcossin.to(device)
+
+            img = img.to(device, dtype=torch.float32)
+            lwcossin = lwcossin.to(device, dtype=torch.float32)
 
             optimizer.zero_grad()
+            # print('this is img', img)
             pred_lwcossin = model.forward(img)
+            # print('this is pred', pred_lwcossin)
             # print('this is the length of pre', len(pred_xyzyaw))
             loss = model.loss(pred_lwcossin, lwcossin)
             loss.backward()
@@ -213,10 +214,9 @@ if __name__ == "__main__":
         with torch.no_grad():
             for batch in test_loader:
                 img, lwcossin = batch["image"], batch["lwcossin"]
-                img = img.to(device)
-                lwcossin = scaler.transform(lwcossin)
-                lwcossin = torch.from_numpy(lwcossin)
-                lwcossin = lwcossin.to(device)
+
+                img = img.to(device, dtype=torch.float32)
+                lwcossin = lwcossin.to(device, dtype=torch.float32)
 
                 pred_lwcossin = model.forward(img)
                 loss = model.loss(pred_lwcossin, lwcossin)
@@ -226,6 +226,8 @@ if __name__ == "__main__":
         all_valid_L.append(avg_valid_L)
 
         scheduler.step()
+        print('this is min_loss', min_loss)
+        print('this is avg_valid_L', avg_valid_L)
         if avg_valid_L < min_loss:
             print('Training_Loss At Epoch ' + str(epoch) + ':\t' + str(avg_train_L))
             print('Testing_Loss At Epoch ' + str(epoch) + ':\t' + str(avg_valid_L))
